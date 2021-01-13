@@ -55,13 +55,23 @@ module stokke_grips() {
 }
 
 module whole() {
-    linear_extrude(5) {
+    linear_extrude(8) {
         stokke_grips();
         //tray bar
-        translate([-19, 8, 0]) rotate([0,0,-10]) {
+        translate([-19, 8]) rotate([0,0,-10]) {
             //square([3, 20]);
             tray_grip();
-            translate([12, 0, 0]) rotate([0, 0, 180]) square([3, 165]);
+            //thick back
+            #translate([7, 0, 0]) polygon([
+            [5, 1], [-4, 11], [39, 10]
+            ]);
+            //thick under tray
+            translate([12, 0, 0]) rotate([0, 0, 180]) polygon([
+            [3, 0], [0, 0],
+            [0, 10], [-5.2, 11.5],
+            [0, 165], [3, 165]
+            ]);
+            //square([3, 165]);
             translate([0, -165, 0]) rotate([180, 0, 0]) tray_grip();
         }
     }
