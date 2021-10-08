@@ -31,4 +31,4 @@ module box_part(height, hinge_height, hinge_width) {
     }
 }
 
-//box_part(14, 6, 10);
+box_part(14, 6, 10);
