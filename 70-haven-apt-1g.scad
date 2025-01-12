@@ -25,8 +25,36 @@ module base_frame() {
     ]);
 }
 
-module wall(angle, thickness, length) {
-    rotate([0, 0, angle]) cube([length, thickness, wall_height]);
+molding_none = 0;
+molding_in = 1;
+molding_out = 2;
+molding_in_out = 3;
+
+module molding(length) {
+    rotate([0, 90, 0]) linear_extrude(height = length) {
+        radius = 1;
+        polygon(points=[
+            [0, 0],
+            [-radius, 0],
+            for (i = [91:180]) [radius*cos(i), radius*sin(i)],
+            [0, radius]
+        ]);
+    }
+}
+
+module wall(angle, thickness, length, molding) {
+    rotate([0, 0, angle]) {
+        cube([length, thickness, wall_height]);
+    
+        do_molding_in = molding == molding_in || molding == molding_in_out;
+        do_molding_out = molding == molding_out || molding == molding_in_out;
+        
+        molding_height = 4;
+        
+        if (do_molding_in) {
+            translate([0,thickness,0]) molding(length);
+        }
+    }
 }
 
 module entrance_single_frame(thickness, height, frame_width) {
@@ -45,7 +73,7 @@ module enterance_frame(angle, thickness, height, width) {
     frame_width = 4;
     rotate([0, 0, angle]) {
         entrance_single_frame(thickness, height+frame_width, frame_width);
-        translate([width, 0, 0]) mirror() entrance_single_frame(thickness, height+frame_width, frame_width);
+        translate([width, 0, 0]) mirror([1,0,0]) entrance_single_frame(thickness, height+frame_width, frame_width);
         translate([-frame_width, 0, height]) rotate([0, 90, 0]) entrance_single_frame(thickness, width+2*frame_width, frame_width);
     }
 }
@@ -59,10 +87,10 @@ module living_room() {
         // walls
         west_wall = thin_wall + (12*13+11);
         south_wall = thick_wall + (12*16+6);
-        wall(0, thick_wall, west_wall);
-        wall(-90, thin_wall, south_wall);
-        translate([west_wall, thick_wall, 0]) wall(-90, thick_wall, south_wall + thick_wall);
-        translate([0, -south_wall, 0]) wall(0, thin_wall, west_wall);
+        wall(0, thick_wall, west_wall, molding_in);
+        wall(-90, thin_wall, south_wall, molding_in);
+        translate([west_wall, thick_wall, 0]) wall(-90, thick_wall, south_wall + thick_wall, molding_in_out);
+        translate([0, -south_wall, 0]) wall(0, thin_wall, west_wall, molding_in);
         
         //south entrance
         translate([5+thin_wall, -south_wall+thin_wall, 0]) enterance_frame(0, thin_wall, 12*9, 12*3);
